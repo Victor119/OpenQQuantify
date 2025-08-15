@@ -1,0 +1,20 @@
+For low_frequency:
+in the flow graph i didn`t connect the file sink to the throttle block but i did in my python script:
+
+	# Connect the output of the modulation block to the file sink
+	tb.connect((tb.blocks_throttle2_0, 0), (file_sink, 0))
+
+
+
+For very_low_frequency:
+in the flow graph i didn`t connect the file sink to the multiply block but i did in my python script:
+
+	# Connect the output of the modulation block to the file sink
+	tb.connect((tb.blocks_multiply_xx_0, 0), (file_sink, 0))
+
+
+For ultra_low_frequency:
+in the flow graph i didn`t connect the file sink to the second multiply block but i did in my python script:
+
+	# Connect the output of the modulation block to the file sink
+    	tb.connect((tb.blocks_multiply_xx_1, 0), (file_sink, 0))

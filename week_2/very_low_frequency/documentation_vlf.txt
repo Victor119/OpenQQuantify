@@ -1,0 +1,12 @@
+Title: BPSK
+
+The data flow graph has been designed considering the following equations: 
+C(t) = A * cos(2*π*f_c*t)
+
+The modulation waveform of frequency fm and amplitude M is given by:  
+
+m(t) = A * cos(2*π*f_m*t + π) 
+
+The modulated wave is obtained by considering the following equation:
+
+y(t) = [1 + m(t)] * c(t) 

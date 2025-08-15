@@ -1,0 +1,14 @@
+Title: AM Modulation
+
+AM = Ac*[1+m*cos(w_m*t)]*cos(w_c*t)
+
+Modulation Waveform = Am*cos(w_m*t)
+
+Carrier Wave = Ac*cos(w_c*t)
+
+m = modulation index = Am / Ac <= 1
+
+When m = 1 (100%), the amplitude of the mod waveform is equal to the carrier amplitude and this results in the deepest modulation where the mod carrier reaches 2*Ac.
+
+cos(wm*t)*cos(wc*t) = 1/2[cos((wm+wc)*t) + cos((wc_wm)*t)]
+

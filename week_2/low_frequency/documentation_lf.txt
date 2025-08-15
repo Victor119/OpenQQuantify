@@ -1,0 +1,21 @@
+Title: amplitude_modulation
+
+V_am (t) = A_c * cos(2*n*f_c*t)*[1+ K_a * m(t)]
+         = A_c * cos(2*n*f_c*t)+[A_c*A_m*K_a*cos(2*n*f_c*t)*cos(2 * n * f_m * t)]
+
+
+m(t) = modulating signal 
+	which is your information signal
+
+m(t) = A_m * cos(2*n*f_m *t)
+
+f_c = frequency
+
+A_c = carrier signal
+
+A_m = amplitude
+
+K_a = Modulation INDEX
+
+
+
