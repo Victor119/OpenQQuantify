@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>OPENQQUANTIFY Cesium Application</title>
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.121/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.121/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cesiumjs.org/Cesium/Build/Apps/Sandcastle/templates/bucket.css">
+  <script src="https://sandcastle.cesium.com/Sandcastle-header.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2/dist/spectrum.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2/dist/spectrum.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+    <div id="cesiumContainer"></div>
+
+    <script>
+        Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlNmQzM2IzYy1iNmZmLTQzOTAtODI5NC00MzE2MzY1MTdmOGQiLCJpZCI6MjQxODYyLCJpYXQiOjE3MjY0NTk1MjJ9.XhN4UNgKITt-KoENllwyeEe5CCfcr5QZ1L90ToHUt14';
+
+
+        const viewer = new Cesium.Viewer("cesiumContainer", {
+        terrain: Cesium.Terrain.fromWorldTerrain(),
+        animation: false,
+        timeline: false,
+        baseLayerPicker: false,
+        geocoder: false,
+        infoBox: false,
+        selectionIndicator: false,
+        });
+
+        // Configure camera
+        viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883, 3000),
+        orientation: {
+            heading: Cesium.Math.toRadians(0),
+            pitch: Cesium.Math.toRadians(-60),
+            roll: 0,
+        },
+        duration: 0,
+        });
+
+        // Rotation speed (2π rad/s for a full rotation in 10 seconds)
+        const angularSpeed = Cesium.Math.TWO_PI / 10;
+
+        // Sphere position
+        const spherePosition = Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883, 500);
+
+        // Create sphere with rotation around ECEF Z-axis
+        const sphereEntity = viewer.entities.add({
+        position: spherePosition,
+        orientation: new Cesium.CallbackProperty(
+            (time, result) => {
+            const seconds = Cesium.JulianDate.secondsDifference(
+                time,
+                viewer.clock.startTime
+            );
+            const angle = seconds * angularSpeed;
+            return Cesium.Quaternion.fromAxisAngle(
+                Cesium.Cartesian3.UNIT_Z, // ECEF Z-axis
+                angle,
+                result
+            );
+            },
+            false // Update every frame
+        ),
+        ellipsoid: {
+            radii: new Cesium.Cartesian3(800, 800, 800),
+            material: Cesium.Color.RED.withAlpha(0.9),
+            outline: true,
+            outlineColor: Cesium.Color.BLACK,
+        },
+        });
+
+        // Configure clock for continuous animation
+        viewer.clock.shouldAnimate = true;
+        viewer.clock.multiplier = 1.0;
+        viewer.clock.startTime = Cesium.JulianDate.now();
+        viewer.clock.stopTime = Cesium.JulianDate.addHours(
+        viewer.clock.startTime,
+        24,
+        new Cesium.JulianDate()
+        );
+
+        // Force scene redraw
+        viewer.scene.requestRender();
+
+
+    </script>
+</body>
+</html>

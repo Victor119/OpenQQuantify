@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>OPENQQUANTIFY Cesium Application</title>
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.121/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.121/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cesiumjs.org/Cesium/Build/Apps/Sandcastle/templates/bucket.css">
+  <script src="https://sandcastle.cesium.com/Sandcastle-header.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2/dist/spectrum.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2/dist/spectrum.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+  <div id="cesiumContainer"></div>
+
+  <script>
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlNmQzM2IzYy1iNmZmLTQzOTAtODI5NC00MzE2MzY1MTdmOGQiLCJpZCI6MjQxODYyLCJpYXQiOjE3MjY0NTk1MjJ9.XhN4UNgKITt-KoENllwyeEe5CCfcr5QZ1L90ToHUt14';
+
+
+
+
+
+    const viewer = new Cesium.Viewer('cesiumContainer', {
+  terrain: Cesium.Terrain.fromWorldTerrain(),
+  animation: false,
+  timeline: false,
+  baseLayerPicker: false,
+  geocoder: false,
+  infoBox: false,
+  selectionIndicator: false
+});
+
+// 2) Poziție și transformare ENU
+const position = Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883, 500);
+const enuToEcef = Cesium.Transforms.eastNorthUpToFixedFrame(position);
+
+// Extragem partea de rotație (3x3) din matricea 4x4
+const baseRotation = Cesium.Matrix4.getMatrix3(enuToEcef, new Cesium.Matrix3());
+
+// (Opțional) un offset de heading dacă vrei să rotești paralelele sferei față de Nord local
+// ex: +90° (π/2) ar muta "meridianul 0" să fie spre Est local etc.
+const headingOffset = 0.0; // Cesium.Math.toRadians(90); de ex.
+
+// 3) Setăm viteza de rotație: o rotație completă în 10 secunde
+const angularSpeed = Cesium.Math.TWO_PI / 10;
+
+// 4) Definim orientation ca un CallbackProperty
+//    care calculează, la fiecare frame, rotația sferică animată.
+const orientationCallback = new Cesium.CallbackProperty((time, result) => {
+  // Timpul scurs în secunde de la start
+  const seconds = Cesium.JulianDate.secondsDifference(time, viewer.clock.startTime);
+  // Unghiul de rotație
+  const angle = seconds * angularSpeed;
+  // Rotație locală (în jurul axei Z locale) cu un offset inițial
+  const totalAngle = angle + headingOffset;
+  const rotationLocalZ = Cesium.Matrix3.fromRotationZ(totalAngle);
+
+  // Combinăm rotația locală cu baza (ENU -> ECEF)
+  const totalRotation = Cesium.Matrix3.multiply(baseRotation, rotationLocalZ, new Cesium.Matrix3());
+
+  // Convertim la quaternion
+  return Cesium.Quaternion.fromRotationMatrix(totalRotation, result);
+}, false);
+
+// 5) Adăugăm entitatea sferă
+const sphereEntity = viewer.entities.add({
+  name: 'Sfera aliniată cu ENU',
+  position: position,
+  orientation: orientationCallback,
+  ellipsoid: {
+    radii: new Cesium.Cartesian3(800, 800, 800),
+    material: Cesium.Color.RED.withAlpha(0.9),
+    outline: true,
+    outlineColor: Cesium.Color.BLACK
+  }
+});
+
+// 6) Ajustăm camera
+viewer.camera.flyTo({
+  destination: Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883, 3000),
+  orientation: {
+    heading: Cesium.Math.toRadians(0),
+    pitch: Cesium.Math.toRadians(-60),
+    roll: 0
+  },
+  duration: 0
+});
+
+// 7) Pornim animația
+viewer.clock.shouldAnimate = true;
+viewer.scene.requestRender();
+
+
+  </script>
+</body>
+</html>
